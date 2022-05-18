@@ -15,6 +15,8 @@ import hashlib
 import warnings
 
 from .users.views import user
+from .rpp.views import rpp
+from .absensi.views import absensi
 
 from . data import Data
 from . import config as CFG
@@ -101,7 +103,13 @@ def tambahLogs(logs):
 
 # region >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> AUTH AREA (JWT) <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
+@app.route("/")
+def home():
+    return "MSIB BISA AI Backend"
+
 # Tambah data Admin
+
+
 @app.route("/register_admin", methods=['POST'])
 @cross_origin()
 def register_admin():
@@ -268,7 +276,7 @@ def login_mahasiswa():
     if password_enc != db_password:
         return defined_error("Wrong Password", "Invalid Credential", 401)
 
-    role_desc = "Mahasiswa"
+    role_desc = "mahasiswa"
 
     jwt_payload = {
         "id_user": db_id_mahasiswa,
@@ -413,5 +421,6 @@ def not_found(error):
 # --------------------- REGISTER BLUEPRINT ------------------------
 
 app.register_blueprint(user, url_prefix='/users')
-
+app.register_blueprint(rpp, url_prefix='/rpp')
+app.register_blueprint(absensi, url_prefix='/absensi')
 # --------------------- END REGISTER BLUEPRINT ------------------------

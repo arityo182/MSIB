@@ -19,7 +19,7 @@ DB_PASSWORD = ""
 DB_HOST = "localhost"
 
 # URL
-BACKEND_BASE_URL = "https://localhost:5000/"
+BACKEND_BASE_URL = "https://localhost:8091/"
 
 # Folder Path
 # 2 variabel dibawah merupakan default logs dan upload (didalam direktori projek)

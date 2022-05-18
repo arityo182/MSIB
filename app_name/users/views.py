@@ -15,6 +15,8 @@ import random
 import json
 import warnings
 import string
+import numpy as np
+import cv2
 
 from .models import Data
 
@@ -26,12 +28,21 @@ user = Blueprint('user', __name__,
 
 # region ================================= FUNGSI-FUNGSI AREA ==========================================================================
 
+role_group_all = ["mahasiswa", "mentor", "pengajar"]
+role_group_admin = ["admin"]
+
 
 def tambahLogs(logs):
     f = open(app.config['LOGS'] + "/" +
              secure_filename(strftime("%Y-%m-%d")) + ".txt", "a")
     f.write(logs)
     f.close()
+
+
+def save(encoded_data, filename):
+    arr = np.fromstring(base64.b64decode(encoded_data), np.uint8)
+    img = cv2.imdecode(arr, cv2.IMREAD_UNCHANGED)
+    return cv2.imwrite(filename, img)
 
 
 def permission_failed():
@@ -77,17 +88,229 @@ def random_string_number_only(stringLength):
 
 # region ================================= MY PROFILE AREA ==========================================================================
 
-@user.route('/get_my_profile', methods=['GET', 'OPTIONS'])
+#get profile admin
+@user.route('/get_admin_profile', methods=['GET', 'OPTIONS'])
 @jwt_required()
 @cross_origin()
-def get_my_profile():
-    return "Baru"
+def get_admin_profile():
+    try:
+        ROUTE_NAME = str(request.path)
 
-# endregion ================================= MY PROFILE AREA ==========================================================================
+        id_user = str(get_jwt()["id_admin"])
+        role = str(get_jwt()["role_desc"])
+        nama = str(get_jwt()["nama"])
+
+        if role not in role_group_admin:
+            return permission_failed()
+
+        dt = Data()
+
+        query = """ SELECT a.* FROM admin a WHERE id_admin = %s """
+        values = (id_user, )
+
+        rowCount = dt.row_count(query, values)
+        hasil = dt.get_data(query, values)
+        hasil = {'data': hasil, 'status_code': 200, 'row_count': rowCount}
+        ########## INSERT LOG ##############
+        imd = ImmutableMultiDict(request.args)
+        imd = imd.to_dict()
+        param_logs = "[" + str(imd) + "]"
+        try:
+            logs = secure_filename(strftime("%Y-%m-%d %H:%M:%S"))+" - "+ROUTE_NAME + \
+                " - id_user = "+str(id_user)+" - roles = "+str(role)+"\n"
+        except Exception as e:
+            logs = secure_filename(strftime(
+                "%Y-%m-%d %H:%M:%S"))+" - "+ROUTE_NAME+" - id_user = NULL - roles = NULL\n"
+        tambahLogs(logs)
+        ####################################
+        return make_response(jsonify(hasil), 200)
+    except Exception as e:
+        return bad_request(str(e))
+
+
+#get profile pengajar
+@user.route('/get_pengajar_profile', methods=['GET', 'OPTIONS'])
+@jwt_required()
+@cross_origin()
+def get_pengajar_profile():
+    try:
+        ROUTE_NAME = str(request.path)
+
+        id_user = str(get_jwt()["id_user"])
+        role = str(get_jwt()["role_desc"])
+        email = str(get_jwt()["email"])
+
+        if role not in role_group_all:
+            return permission_failed()
+
+        dt = Data()
+
+        query = """ SELECT a.* FROM pengajar a WHERE id_pengajar = %s """
+        values = (id_user, )
+
+        rowCount = dt.row_count(query, values)
+        hasil = dt.get_data(query, values)
+        hasil = {'data': hasil, 'status_code': 200, 'row_count': rowCount}
+        ########## INSERT LOG ##############
+        imd = ImmutableMultiDict(request.args)
+        imd = imd.to_dict()
+        param_logs = "[" + str(imd) + "]"
+        try:
+            logs = secure_filename(strftime("%Y-%m-%d %H:%M:%S"))+" - "+ROUTE_NAME + \
+                " - id_user = "+str(id_user)+" - roles = "+str(role)+"\n"
+        except Exception as e:
+            logs = secure_filename(strftime(
+                "%Y-%m-%d %H:%M:%S"))+" - "+ROUTE_NAME+" - id_user = NULL - roles = NULL\n"
+        tambahLogs(logs)
+        ####################################
+        return make_response(jsonify(hasil), 200)
+    except Exception as e:
+        return bad_request(str(e))
+
+#get profile mentor
+@user.route('/get_mentor_profile', methods=['GET', 'OPTIONS'])
+@jwt_required()
+@cross_origin()
+def get_mentor_profile():
+    try:
+        ROUTE_NAME = str(request.path)
+
+        id_user = str(get_jwt()["id_user"])
+        role = str(get_jwt()["role_desc"])
+        email = str(get_jwt()["email"])
+
+        if role not in role_group_all:
+            return permission_failed()
+
+        dt = Data()
+
+        query = """ SELECT a.* FROM mentor a WHERE id_mentor = %s """
+        values = (id_user, )
+
+        rowCount = dt.row_count(query, values)
+        hasil = dt.get_data(query, values)
+        hasil = {'data': hasil, 'status_code': 200, 'row_count': rowCount}
+        ########## INSERT LOG ##############
+        imd = ImmutableMultiDict(request.args)
+        imd = imd.to_dict()
+        param_logs = "[" + str(imd) + "]"
+        try:
+            logs = secure_filename(strftime("%Y-%m-%d %H:%M:%S"))+" - "+ROUTE_NAME + \
+                " - id_user = "+str(id_user)+" - roles = "+str(role)+"\n"
+        except Exception as e:
+            logs = secure_filename(strftime(
+                "%Y-%m-%d %H:%M:%S"))+" - "+ROUTE_NAME+" - id_user = NULL - roles = NULL\n"
+        tambahLogs(logs)
+        ####################################
+        return make_response(jsonify(hasil), 200)
+    except Exception as e:
+        return bad_request(str(e))
+
+
+# get Profile mahasiswa
+@user.route('/get_mahasiswa_profile', methods=['GET', 'OPTIONS'])
+@jwt_required()
+@cross_origin()
+def get_mahasiswa_profile():
+    try:
+        ROUTE_NAME = str(request.path)
+
+        id_user = str(get_jwt()["id_user"])
+        role = str(get_jwt()["role_desc"])
+        email = str(get_jwt()["email"])
+
+        if role not in role_group_all:
+            return permission_failed()
+
+        dt = Data()
+
+        query = """ SELECT a.* FROM mahasiswa a WHERE id_mahasiswa = %s """
+        values = (id_user, )
+
+        rowCount = dt.row_count(query, values)
+        hasil = dt.get_data(query, values)
+        hasil = {'data': hasil, 'status_code': 200, 'row_count': rowCount}
+        ########## INSERT LOG ##############
+        imd = ImmutableMultiDict(request.args)
+        imd = imd.to_dict()
+        param_logs = "[" + str(imd) + "]"
+        try:
+            logs = secure_filename(strftime("%Y-%m-%d %H:%M:%S"))+" - "+ROUTE_NAME + \
+                " - id_user = "+str(id_user)+" - roles = "+str(role)+"\n"
+        except Exception as e:
+            logs = secure_filename(strftime(
+                "%Y-%m-%d %H:%M:%S"))+" - "+ROUTE_NAME+" - id_user = NULL - roles = NULL\n"
+        tambahLogs(logs)
+        ####################################
+        return make_response(jsonify(hasil), 200)
+    except Exception as e:
+        return bad_request(str(e))
+
+# update data profile mahasiswa pribadi
+@user.route('/update_mahasiswa_profile', methods=['PUT', 'OPTIONS'])
+@jwt_required()
+@cross_origin()
+def update_my_profile():
+    ROUTE_NAME = str(request.path)
+
+    now = datetime.datetime.now()
+
+    id_user = str(get_jwt()["id_user"])
+    role = str(get_jwt()["role_desc"])
+    email = str(get_jwt()["email"])
+
+    if role not in role_group_all:
+        return permission_failed()
+
+    try:
+        dt = Data()
+        data = request.json
+
+        query_temp = " SELECT id_mahasiswa FROM mahasiswa WHERE id_mahasiswa = %s "
+        values_temp = (id_user, )
+        data_temp = dt.get_data(query_temp, values_temp)
+        if len(data_temp) == 0:
+            return defined_error("Gagal, data tidak ditemukan")
+
+        query = """UPDATE mahasiswa SET id_mahasiswa = id_user"""
+        values = ()
+
+        if "email_ubah" in data:
+            query += ", email = %s "
+            values += (data["email_ubah"], )
+        if "nama_ubah" in data:
+            query += ", nama_mahasiswa = %s "
+            values += (data["nama_ubah"], )
+        if "tanggal_ubah" in data:
+            query += ", tanggal_lahir = %s "
+            values += (data["tanggal_ubah"], )
+        if "asal_kampus_ubah" in data:
+            query += ", asal_kampus = %s "
+            values += (data["asal_kampus_ubah"], )
+        if "posisi_ubah" in data:
+            query += ", posisi = %s "
+            values += (data["posisi_ubah"], )
+        if "foto_user" in data:
+            filename_photo = secure_filename(strftime(
+                "%Y-%m-%d %H:%M:%S")+"_"+str(random_string_number_only(5))+"_foto_user.png")
+            save(data["foto_user"], os.path.join(
+                app.config['UPLOAD_FOLDER_FOTO_USER'], filename_photo))
+
+            query += """ ,foto_user = %s """
+            values += (filename_photo, )
+
+        query += " WHERE id_mahasiswa = %s "
+        values += (email, )
+        dt.insert_data_last_row(query, values)
+        hasil = {"status": "berhasil update data mahasiswa"}
+
+    except Exception as e:
+        print("Error: " + str(e))
+
+    return jsonify(hasil)
+
 
 # insert Data mahasiswa
-
-
 @user.route("/insert_mahasiswa", methods=["POST", "OPTIONS"])
 @cross_origin()
 def insert_mahasiswa():
@@ -135,7 +358,7 @@ def insert_mahasiswa():
     except Exception as e:
         return bad_request(str(e))
 
-# Melampilkan data mahasiswa
+# menampilkan data mahasiswa
 
 
 @user.route("/get_data_mahasiswa", methods=["GET"])
@@ -155,7 +378,6 @@ def get_data_mahasiswa():
 
 
 # update data mahasiswa
-
 @user.route("/update_data_mahasiswa", methods=["PUT"])
 @cross_origin()
 def update_data_mahasiswa():
@@ -182,7 +404,9 @@ def update_data_mahasiswa():
             values += (data["nama_ubah"], )
         if "password_ubah" in data:
             query += ", password = %s "
-            values += (data["password_ubah"], )
+            password = data["password_ubah"]
+            pass_ency = hashlib.md5(password.encode('utf-8')).hexdigest()
+            values += (pass_ency, )
         if "asal_kampus_ubah" in data:
             query += ", asal_kampus = %s "
             values += (data["asal_kampus_ubah"], )
@@ -200,7 +424,7 @@ def update_data_mahasiswa():
 
     return jsonify(hasil)
 
-# Delete data mahasiswa
+# delete data mahasiswa
 
 
 @user.route("/delete_data_mahasiswa/<email>", methods=["DELETE"])
@@ -210,7 +434,6 @@ def delete_data_mahasiswa(email):
     try:
         dt = Data()
         data = request.json
-
         query = "DELETE FROM mahasiswa WHERE email = %s"
         values = (email, )
         dt.insert_data_last_row(query, values)
@@ -311,7 +534,9 @@ def update_data_pengajar():
             values += (data["nama_ubah"], )
         if "password_ubah" in data:
             query += ", password = %s "
-            values += (data["password_ubah"], )
+            password = data["password_ubah"]
+            pass_ency = hashlib.md5(password.encode('utf-8')).hexdigest()
+            values += (pass_ency, )
 
         query += " WHERE email = %s "
         values += (email, )
@@ -435,7 +660,9 @@ def update_data_mentor():
             values += (data["nama_ubah"], )
         if "password_ubah" in data:
             query += ", password = %s "
-            values += (data["password_ubah"], )
+            password = data["password_ubah"]
+            pass_ency = hashlib.md5(password.encode('utf-8')).hexdigest()
+            values += (pass_ency, )
 
         query += " WHERE email = %s "
         values += (email, )
@@ -466,3 +693,6 @@ def delete_data_mentor(email):
         print("Error: " + str(e))
 
     return jsonify(hasil)
+
+# endregion ================================= MY PROFILE AREA ==========================================================================
+
