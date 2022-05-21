@@ -17,10 +17,13 @@ import warnings
 from .users.views import user
 from .rpp.views import rpp
 from .absensi.views import absensi
+from .project.views import project
 
 from . data import Data
 from . import config as CFG
 
+
+role_group_admin = ["SUPER ADMIN"]
 
 # IMPORT BLUEPRINT
 
@@ -53,9 +56,11 @@ UPLOAD_FOLDER_PATH = CFG.UPLOAD_FOLDER_PATH
 if UPLOAD_FOLDER_PATH[-1] != "/":
     UPLOAD_FOLDER_PATH = UPLOAD_FOLDER_PATH + "/"
 
+
 app.config['UPLOAD_FOLDER_FOTO_USER'] = UPLOAD_FOLDER_PATH+"foto_user/"
 app.config['UPLOAD_FOLDER_FOTO_TEMPAT_UJI_KOMPETENSI'] = UPLOAD_FOLDER_PATH + \
     "lokasi/foto_tempat_uji_kompetensi/"
+
 
 # Create folder if doesn't exist
 list_folder_to_create = [
@@ -71,6 +76,10 @@ for x in list_folder_to_create:
 
 
 # region >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> FUNCTION AREA <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+def permission_failed():
+    return make_response(jsonify({'error': 'Permission Failed', 'status_code': 403}), 403)
+
 
 def defined_error(description, error="Defined Error", status_code=499):
     return make_response(jsonify({'description': description, 'error': error, 'status_code': status_code}), status_code)
@@ -112,19 +121,28 @@ def home():
 
 @app.route("/register_admin", methods=['POST'])
 @cross_origin()
+@jwt_required()
 def register_admin():
     ROUTE_NAME = request.path
     try:
+
+        id_user = str(get_jwt()["id_user"])
+        role = str(get_jwt()["role_desc"])
+        username = str(get_jwt()["username"])
+
+        if role not in role_group_admin:
+            return permission_failed()
+
         dt = Data()
         data = request.json
 
         # Check Data
         if "username" not in data:
-            return parameter_error("Username belum diisi")
+            return parameter_error("username belum diisi")
         if "password" not in data:
-            return parameter_error("Password belum diisi")
+            return parameter_error("password belum diisi")
         if "nama" not in data:
-            return parameter_error("Nama belum diisi")
+            return parameter_error("nama belum diisi")
 
         # mendapatkan data dari request body
         username = request.json.get('username')
@@ -154,9 +172,18 @@ def register_admin():
 
 @app.route("/get_data_admin", methods=["GET"])
 @cross_origin()
+@jwt_required()
 def get_data_admin():
 
     try:
+
+        id_user = str(get_jwt()["id_user"])
+        role = str(get_jwt()["role_desc"])
+        username = str(get_jwt()["username"])
+
+        if role not in role_group_admin:
+            return permission_failed()
+
         dt = Data()
         query = "SELECT * FROM admin"
         values = ()
@@ -171,22 +198,35 @@ def get_data_admin():
 # Delete admin
 
 
-@app.route("/delete_data_admin/<username>", methods=["DELETE"])
-def delete_data_mentor(username):
-    hasil = {"status": "gagal hapus data Admin"}
-
+@app.route("/delete_data_admin/<username_hapus>", methods=["DELETE"])
+@cross_origin()
+@jwt_required()
+def delete_data_mentor(username_hapus):
     try:
+        id_user = str(get_jwt()["id_user"])
+        role = str(get_jwt()["role_desc"])
+        username = str(get_jwt()["username"])
+
+        if role not in role_group_admin:
+            return permission_failed()
+
         dt = Data()
+
+        query = "SELECT username FROM admin WHERE username = %s "
+        values = (username_hapus, )
+        data_admin = dt.get_data(query, values)
+        if len(data_admin) == 0:
+            return defined_error("username admin tidak di temukan", 401)
+
         data = request.json
 
         query = "DELETE FROM admin WHERE username = %s"
-        values = (username, )
-        dt.insert_data_last_row(query, values)
+        values = (username_hapus, )
+        dt.insert_data(query, values)
         hasil = {"status": "berhasil hapus data Admin"}
+        return make_response(jsonify({'status_code': 200, 'description': hasil}), 200)
     except Exception as e:
-        print("Error: " + str(e))
-
-    return jsonify(hasil)
+        return bad_request(str(e))
 
 
 # Login admin
@@ -423,4 +463,5 @@ def not_found(error):
 app.register_blueprint(user, url_prefix='/users')
 app.register_blueprint(rpp, url_prefix='/rpp')
 app.register_blueprint(absensi, url_prefix='/absensi')
+app.register_blueprint(project, url_prefix='/project')
 # --------------------- END REGISTER BLUEPRINT ------------------------

@@ -29,7 +29,10 @@ user = Blueprint('user', __name__,
 # region ================================= FUNGSI-FUNGSI AREA ==========================================================================
 
 role_group_all = ["mahasiswa", "mentor", "pengajar"]
-role_group_admin = ["admin"]
+role_group_admin = ["SUPER ADMIN"]
+role_mahasiswa = ["mahasiswa"]
+role_pengajar = ["pengajar"]
+role_mentor = ["mentor"]
 
 
 def tambahLogs(logs):
@@ -88,7 +91,7 @@ def random_string_number_only(stringLength):
 
 # region ================================= MY PROFILE AREA ==========================================================================
 
-#get profile admin
+# get profile admin
 @user.route('/get_admin_profile', methods=['GET', 'OPTIONS'])
 @jwt_required()
 @cross_origin()
@@ -128,7 +131,7 @@ def get_admin_profile():
         return bad_request(str(e))
 
 
-#get profile pengajar
+# get profile pengajar
 @user.route('/get_pengajar_profile', methods=['GET', 'OPTIONS'])
 @jwt_required()
 @cross_origin()
@@ -167,7 +170,9 @@ def get_pengajar_profile():
     except Exception as e:
         return bad_request(str(e))
 
-#get profile mentor
+# get profile mentor
+
+
 @user.route('/get_mentor_profile', methods=['GET', 'OPTIONS'])
 @jwt_required()
 @cross_origin()
@@ -219,7 +224,7 @@ def get_mahasiswa_profile():
         role = str(get_jwt()["role_desc"])
         email = str(get_jwt()["email"])
 
-        if role not in role_group_all:
+        if role not in role_mahasiswa:
             return permission_failed()
 
         dt = Data()
@@ -247,90 +252,105 @@ def get_mahasiswa_profile():
         return bad_request(str(e))
 
 # update data profile mahasiswa pribadi
+
+
 @user.route('/update_mahasiswa_profile', methods=['PUT', 'OPTIONS'])
 @jwt_required()
 @cross_origin()
 def update_my_profile():
-    ROUTE_NAME = str(request.path)
-
-    now = datetime.datetime.now()
-
-    id_user = str(get_jwt()["id_user"])
-    role = str(get_jwt()["role_desc"])
-    email = str(get_jwt()["email"])
-
-    if role not in role_group_all:
-        return permission_failed()
 
     try:
+        id_user = str(get_jwt()["id_user"])
+        role = str(get_jwt()["role_desc"])
+        email = str(get_jwt()["email"])
+
+        if role not in role_mahasiswa:
+            return permission_failed()
+
         dt = Data()
         data = request.json
 
         query_temp = " SELECT id_mahasiswa FROM mahasiswa WHERE id_mahasiswa = %s "
         values_temp = (id_user, )
-        data_temp = dt.get_data(query_temp, values_temp)
-        if len(data_temp) == 0:
+        data_mahasiswa = dt.get_data(query_temp, values_temp)
+        if len(data_mahasiswa) == 0:
             return defined_error("Gagal, data tidak ditemukan")
 
-        query = """UPDATE mahasiswa SET id_mahasiswa = id_user"""
-        values = ()
+        query = """UPDATE mahasiswa SET id_mahasiswa = %s """
+        values = (id_user, )
 
         if "email_ubah" in data:
-            query += ", email = %s "
+            query += """, email = %s """
             values += (data["email_ubah"], )
+        else:
+            return parameter_error("email_ubah tidak di temukan")
         if "nama_ubah" in data:
-            query += ", nama_mahasiswa = %s "
+            query += """, nama_mahasiswa = %s """
             values += (data["nama_ubah"], )
+        else:
+            return parameter_error("nama_ubah tidak di temukan")
         if "tanggal_ubah" in data:
-            query += ", tanggal_lahir = %s "
+            query += """, tanggal_lahir = %s """
             values += (data["tanggal_ubah"], )
+        else:
+            return parameter_error("tanggal_ubah tidak di temukan")
         if "asal_kampus_ubah" in data:
-            query += ", asal_kampus = %s "
+            query += """, asal_kampus = %s """
             values += (data["asal_kampus_ubah"], )
+        else:
+            return parameter_error("asal_kampus_ubah tidak di temukan")
         if "posisi_ubah" in data:
-            query += ", posisi = %s "
+            query += """, posisi = %s """
             values += (data["posisi_ubah"], )
+        else:
+            return parameter_error("posisi_ubah tidak di temukan")
         if "foto_user" in data:
             filename_photo = secure_filename(strftime(
                 "%Y-%m-%d %H:%M:%S")+"_"+str(random_string_number_only(5))+"_foto_user.png")
             save(data["foto_user"], os.path.join(
-                app.config['UPLOAD_FOLDER_FOTO_USER'], filename_photo))
+                app.config['UPLOAD_FOLDER_FOTO_TEMPAT_UJI_KOMPETENSI'], filename_photo))
 
             query += """ ,foto_user = %s """
             values += (filename_photo, )
+        else:
+            return parameter_error("foto_user tidak di temukan")
 
-        query += " WHERE id_mahasiswa = %s "
-        values += (email, )
+        query += """ WHERE id_mahasiswa = %s """
+        values += (id_user, )
         dt.insert_data_last_row(query, values)
         hasil = {"status": "berhasil update data mahasiswa"}
-
+        return make_response(jsonify({'status_code': 200, 'description': hasil}), 200)
     except Exception as e:
-        print("Error: " + str(e))
-
-    return jsonify(hasil)
+        return bad_request(str(e))
 
 
 # insert Data mahasiswa
 @user.route("/insert_mahasiswa", methods=["POST", "OPTIONS"])
+@jwt_required()
 @cross_origin()
 def insert_mahasiswa():
     try:
-        hasil = {"status": "berhasil tambah data mahasiswa"}
+        id_user = str(get_jwt()["id_user"])
+        role = str(get_jwt()["role_desc"])
+        username = str(get_jwt()["username"])
+
+        if role not in role_group_admin:
+            return permission_failed()
 
         dt = Data()
         data = request.json
 
         # Cek data
         if "email" not in data:
-            return parameter_error("Email tidak ada")
+            return parameter_error("email tidak temukan")
         if "nama_mahasiswa" not in data:
-            return parameter_error("Nama Mahasiswa tidak di temukan")
+            return parameter_error("nama_mahasiswa tidak di temukan")
         if "password" not in data:
-            return parameter_error("Password tidak ada")
+            return parameter_error("password tidak di temukan")
         if "asal_kampus" not in data:
-            return parameter_error("Asal Kampus tidak di temukan")
+            return parameter_error("asal_kampus tidak di temukan")
         if "posisi" not in data:
-            return parameter_error("Posisi tidak ada")
+            return parameter_error("posisi tidak di temukan")
 
         email = data["email"]
         nama_mahasiswa = data["nama_mahasiswa"]
@@ -349,12 +369,12 @@ def insert_mahasiswa():
         pass_ency = hashlib.md5(password.encode('utf-8')).hexdigest()
 
         # Masukan data ke database
-        query = "INSERT into mahasiswa (email, nama_mahasiswa, password, asal_kampus, posisi, status_id) VALUES (%s, %s, %s, %s, %s, %s)"
+        query = "INSERT into mahasiswa (email, nama_mahasiswa, password, asal_kampus, posisi, status_id, id_admin) VALUES (%s, %s, %s, %s, %s, %s,%s)"
         values = (email, nama_mahasiswa, pass_ency,
-                  asal_kampus, posisi, status_id)
-        dt.insert_data_last_row(query, values)
-        return make_response(hasil)
-
+                  asal_kampus, posisi, status_id, id_user)
+        dt.insert_data(query, values)
+        hasil = {"status": "berhasil tambah data mahasiswa"}
+        return make_response(jsonify({'status_code': 200, 'description': hasil}), 200)
     except Exception as e:
         return bad_request(str(e))
 
@@ -362,9 +382,18 @@ def insert_mahasiswa():
 
 
 @user.route("/get_data_mahasiswa", methods=["GET"])
+@jwt_required()
 @cross_origin()
 def get_data_mahasiswa():
     try:
+
+        id_user = str(get_jwt()["id_user"])
+        role = str(get_jwt()["role_desc"])
+        username = str(get_jwt()["username"])
+
+        if role not in role_group_admin:
+            return permission_failed()
+
         dt = Data()
         query = "SELECT * FROM mahasiswa"
         values = ()
@@ -372,86 +401,132 @@ def get_data_mahasiswa():
         rowCount = dt.row_count(query, values)
         hasil = dt.get_data(query, values)
         hasil = {'data': hasil, 'status_code': 200, 'row_count': rowCount}
-        return make_response(jsonify(hasil), 200)
+        return make_response(jsonify({'status_code': 200, 'description': hasil}), 200)
     except Exception as e:
         return bad_request(str(e))
 
 
 # update data mahasiswa
-@user.route("/update_data_mahasiswa", methods=["PUT"])
+@user.route("/update_data_mahasiswa/<id>", methods=["PUT"])
+@jwt_required()
 @cross_origin()
-def update_data_mahasiswa():
-    hasil = {"status": "Gagal update data mahasiswa"}
+def update_data_mahasiswa(id):
 
     try:
+        id_user = str(get_jwt()["id_user"])
+        role = str(get_jwt()["role_desc"])
+        username = str(get_jwt()["username"])
+
+        if role not in role_group_admin:
+            return permission_failed()
+
         dt = Data()
+
+        query = "SELECT id_mahasiswa FROM mahasiswa WHERE id_mahasiswa = %s "
+        values = (id, )
+        data_mahasiswa = dt.get_data(query, values)
+        if len(data_mahasiswa) == 0:
+            return defined_error("id mahasiswa tidak di temukan", 401)
+
         data = request.json
 
         # check email apakah sidah di lock
-        if "email_awal" not in data:
-            return parameter_error("Email belum di pilih")
+        # if "email_awal" not in data:
+        #     return parameter_error("Email belum di pilih")
 
-        email = data["email_awal"]
+        # email = data["email_awal"]
 
-        query = "UPDATE mahasiswa SET email = %s "
-        values = (email, )
+        query = "UPDATE mahasiswa SET id_mahasiswa = %s "
+        values = (id, )
 
         if "email_ubah" in data:
             query += ", email = %s "
             values += (data["email_ubah"], )
+        else:
+            return parameter_error("email_ubah tidak ditemukan")
         if "nama_ubah" in data:
             query += ", nama_mahasiswa = %s "
             values += (data["nama_ubah"], )
+        else:
+            return parameter_error("nama_ubah tidak ditemukan")
         if "password_ubah" in data:
             query += ", password = %s "
             password = data["password_ubah"]
             pass_ency = hashlib.md5(password.encode('utf-8')).hexdigest()
             values += (pass_ency, )
+        else:
+            return parameter_error("password_ubah tidak ditemukan")
         if "asal_kampus_ubah" in data:
             query += ", asal_kampus = %s "
             values += (data["asal_kampus_ubah"], )
+        else:
+            return parameter_error("asal_kampus_ubah tidak ditemukan")
         if "posisi_ubah" in data:
             query += ", posisi = %s "
             values += (data["posisi_ubah"], )
+        else:
+            return parameter_error("posisi_ubah tidak ditemukan")
 
-        query += " WHERE email = %s "
-        values += (email, )
+        query += " WHERE id_mahasiswa = %s "
+        values += (id, )
         dt.insert_data_last_row(query, values)
         hasil = {"status": "berhasil update data mahasiswa"}
-
+        return make_response(jsonify({'status_code': 200, 'description': hasil}), 200)
     except Exception as e:
-        print("Error: " + str(e))
+        return bad_request(str(e))
 
-    return jsonify(hasil)
 
 # delete data mahasiswa
 
 
-@user.route("/delete_data_mahasiswa/<email>", methods=["DELETE"])
-def delete_data_mahasiswa(email):
+@user.route("/delete_data_mahasiswa/<id>", methods=["DELETE"])
+@jwt_required()
+@cross_origin()
+def delete_data_mahasiswa(id):
     hasil = {"status": "gagal hapus data mahasiswa"}
 
     try:
-        dt = Data()
-        data = request.json
-        query = "DELETE FROM mahasiswa WHERE email = %s"
-        values = (email, )
-        dt.insert_data_last_row(query, values)
-        hasil = {"status": "berhasil hapus data mahasiswa"}
-    except Exception as e:
-        print("Error: " + str(e))
+        id_user = str(get_jwt()["id_user"])
+        role = str(get_jwt()["role_desc"])
+        username = str(get_jwt()["username"])
 
-    return jsonify(hasil)
+        if role not in role_group_admin:
+            return permission_failed()
+
+        dt = Data()
+
+        query = "SELECT id_mahasiswa FROM mahasiswa WHERE id_mahasiswa = %s "
+        values = (id, )
+        data_mahasiswa = dt.get_data(query, values)
+        if len(data_mahasiswa) == 0:
+            return defined_error("id mahasiswa tidak di temukan", 401)
+
+        data = request.json
+        query = "DELETE FROM mahasiswa WHERE id_mahasiswa = %s"
+        values = (id, )
+        dt.insert_data(query, values)
+        hasil = {"status": "berhasil hapus data mahasiswa"}
+        return make_response(jsonify({'status_code': 200, 'description': hasil}), 200)
+    except Exception as e:
+        return bad_request(str(e))
 
 
 # Menambha data pengajar
 @user.route("/insert_pengajar", methods=["POST", "OPTIONS"])
+@jwt_required()
 @cross_origin()
 def insert_pengajar():
     RUUTE_NAME = str(request.path)
 
     now = datetime.datetime.now()
     try:
+        id_user = str(get_jwt()["id_user"])
+        role = str(get_jwt()["role_desc"])
+        username = str(get_jwt()["username"])
+
+        if role not in role_group_admin:
+            return permission_failed()
+
         dt = Data()
         data = request.json
 
@@ -459,11 +534,11 @@ def insert_pengajar():
 
         # Cek data
         if "email" not in data:
-            return parameter_error("Email tidak ada")
+            return parameter_error("email tidak ditemukan")
         if "nama_pengajar" not in data:
-            return parameter_error("Nama Pengajar tidak di temukan")
+            return parameter_error("nama_pengajar tidak di temukan")
         if "password" not in data:
-            return parameter_error("Password tidak ada")
+            return parameter_error("password tidak ada")
 
         email = data["email"]
         nama_pengajar = data["nama_pengajar"]
@@ -480,10 +555,10 @@ def insert_pengajar():
         pass_ency = hashlib.md5(password.encode('utf-8')).hexdigest()
 
         # Masukan data ke database
-        query = "INSERT into pengajar (email, nama_pengajar, password, status_id) VALUES (%s, %s, %s, %s)"
-        values = (email, nama_pengajar, pass_ency, status_id)
-        dt.insert_data_last_row(query, values)
-        return make_response(hasil)
+        query = "INSERT into pengajar (email, nama_pengajar, password, status_id, id_admin) VALUES (%s, %s, %s, %s, %s)"
+        values = (email, nama_pengajar, pass_ency, status_id, id_user)
+        dt.insert_data(query, values)
+        return make_response(jsonify({'status_code': 200, 'description': hasil}), 200)
 
     except Exception as e:
         return bad_request(str(e))
@@ -491,10 +566,18 @@ def insert_pengajar():
 
 # Melampilkan data pengajar
 @user.route("/get_data_pengajar", methods=["GET"])
+@jwt_required()
 @cross_origin()
 def get_data_pengajar():
 
     try:
+        id_user = str(get_jwt()["id_user"])
+        role = str(get_jwt()["role_desc"])
+        username = str(get_jwt()["username"])
+
+        if role not in role_group_admin:
+            return permission_failed()
+
         dt = Data()
         query = "SELECT * FROM pengajar"
         values = ()
@@ -508,75 +591,113 @@ def get_data_pengajar():
 
 
 # update data pengajar
-@user.route("/update_data_pengajar", methods=["PUT"])
+@user.route("/update_data_pengajar/<id>", methods=["PUT"])
+@jwt_required()
 @cross_origin()
-def update_data_pengajar():
-    hasil = {"status": "Gagal update data pengajar"}
-
+def update_data_pengajar(id):
     try:
+        id_user = str(get_jwt()["id_user"])
+        role = str(get_jwt()["role_desc"])
+        username = str(get_jwt()["username"])
+
+        if role not in role_group_admin:
+            return permission_failed()
+
         dt = Data()
+
+        query = "SELECT id_pengajar FROM pengajar WHERE id_pengajar = %s "
+        values = (id, )
+        data_pengajar = dt.get_data(query, values)
+        if len(data_pengajar) == 0:
+            return defined_error("id pengajar tidak di temukan", 401)
+
         data = request.json
 
         # check email apakah sidah di lock
-        if "email_awal" not in data:
-            return parameter_error("Email belum di pilih")
+        # if "email_awal" not in data:
+        #     return parameter_error("Email belum di pilih")
 
-        email = data["email_awal"]
+        # email = data["email_awal"]
 
-        query = "UPDATE pengajar SET email = %s "
-        values = (email, )
+        query = "UPDATE pengajar SET id_pengajar = %s "
+        values = (id, )
 
         if "email_ubah" in data:
             query += ", email = %s "
             values += (data["email_ubah"], )
+        else:
+            return parameter_error("email_ubah tidak di temukan")
         if "nama_ubah" in data:
             query += ", nama_pengajar = %s "
             values += (data["nama_ubah"], )
+        else:
+            return parameter_error("nama_ubah tidak di temukan")
         if "password_ubah" in data:
             query += ", password = %s "
             password = data["password_ubah"]
             pass_ency = hashlib.md5(password.encode('utf-8')).hexdigest()
             values += (pass_ency, )
+        else:
+            return parameter_error("password_ubah tidak di temukan")
 
-        query += " WHERE email = %s "
-        values += (email, )
+        query += " WHERE id_pengajar = %s "
+        values += (id, )
         dt.insert_data_last_row(query, values)
         hasil = {"status": "berhasil update data pengajar"}
-
+        return make_response(jsonify({'status_code': 200, 'description': hasil}), 200)
     except Exception as e:
-        print("Error: " + str(e))
-
-    return jsonify(hasil)
+        return bad_request(str(e))
 
 # Delete data pengajar
 
 
-@user.route("/delete_data_pengajar/<email>", methods=["DELETE"])
-def delete_data_pengajar(email):
-    hasil = {"status": "gagal hapus data pengajar"}
-
+@user.route("/delete_data_pengajar/<id>", methods=["DELETE"])
+@jwt_required()
+@cross_origin()
+def delete_data_pengajar(id):
     try:
+        id_user = str(get_jwt()["id_user"])
+        role = str(get_jwt()["role_desc"])
+        username = str(get_jwt()["username"])
+
+        if role not in role_group_admin:
+            return permission_failed()
+
         dt = Data()
+
+        query = "SELECT id_pengajar FROM pengajar WHERE id_pengajar = %s "
+        values = (id, )
+        data_pengajar = dt.get_data(query, values)
+        if len(data_pengajar) == 0:
+            return defined_error("id pengajar tidak di temukan", 401)
+
         data = request.json
 
-        query = "DELETE FROM pengajar WHERE email = %s"
-        values = (email, )
-        dt.insert_data_last_row(query, values)
+        query = "DELETE FROM pengajar WHERE id_pengajar = %s"
+        values = (id, )
+        dt.insert_data(query, values)
         hasil = {"status": "berhasil hapus data pengajar"}
+        return make_response(jsonify({'status_code': 200, 'description': hasil}), 200)
     except Exception as e:
-        print("Error: " + str(e))
-
-    return jsonify(hasil)
+        return bad_request(str(e))
 
 
 # Menambah data mentor
 @user.route("/insert_mentor", methods=["POST", "OPTIONS"])
+@jwt_required()
 @cross_origin()
 def insert_mentor():
     RUUTE_NAME = str(request.path)
 
     now = datetime.datetime.now()
     try:
+        id_user = str(get_jwt()["id_user"])
+        role = str(get_jwt()["role_desc"])
+        username = str(get_jwt()["username"])
+
+        if role not in role_group_admin:
+            return permission_failed()
+
         dt = Data()
         data = request.json
 
@@ -584,11 +705,11 @@ def insert_mentor():
 
         # Cek data
         if "email" not in data:
-            return parameter_error("Email tidak ada")
+            return parameter_error("email tidak di temukan")
         if "nama_mentor" not in data:
-            return parameter_error("Nama mentor tidak di temukan")
+            return parameter_error("nama_mentor tidak di temukan")
         if "password" not in data:
-            return parameter_error("Password tidak ada")
+            return parameter_error("password tidak ada")
 
         email = data["email"]
         nama_mahasiswa = data["nama_mentor"]
@@ -605,10 +726,10 @@ def insert_mentor():
         pass_ency = hashlib.md5(password.encode('utf-8')).hexdigest()
 
         # Masukan data ke database
-        query = "INSERT into mentor (email, nama_mentor, password, status_id) VALUES (%s, %s, %s, %s)"
-        values = (email, nama_mahasiswa, pass_ency, status_id)
-        dt.insert_data_last_row(query, values)
-        return make_response(hasil)
+        query = "INSERT into mentor (email, nama_mentor, password, status_id, id_admin) VALUES (%s, %s, %s, %s, %s)"
+        values = (email, nama_mahasiswa, pass_ency, status_id, id_user)
+        dt.insert_data(query, values)
+        return make_response(jsonify({'status_code': 200, 'description': hasil}), 200)
 
     except Exception as e:
         return bad_request(str(e))
@@ -617,10 +738,18 @@ def insert_mentor():
 
 
 @user.route("/get_data_mentor", methods=["GET"])
+@jwt_required()
 @cross_origin()
 def get_data_mentor():
 
     try:
+        id_user = str(get_jwt()["id_user"])
+        role = str(get_jwt()["role_desc"])
+        username = str(get_jwt()["username"])
+
+        if role not in role_group_admin:
+            return permission_failed()
+
         dt = Data()
         query = "SELECT * FROM mentor"
         values = ()
@@ -634,23 +763,30 @@ def get_data_mentor():
 
 
 # update data mentor
-@user.route("/update_data_mentor", methods=["PUT"])
+@user.route("/update_data_mentor/<id>", methods=["PUT", "OPTIONS"])
+@jwt_required()
 @cross_origin()
-def update_data_mentor():
-    hasil = {"status": "Gagal update data mentor"}
-
+def update_data_mentor(id):
     try:
+        id_user = str(get_jwt()["id_user"])
+        role = str(get_jwt()["role_desc"])
+        username = str(get_jwt()["username"])
+
+        if role not in role_group_admin:
+            return permission_failed()
+
         dt = Data()
+
+        query = "SELECT id_mentor FROM mentor WHERE id_mentor = %s "
+        values = (id, )
+        data_pengajar = dt.get_data(query, values)
+        if len(data_pengajar) == 0:
+            return defined_error("id mentor tidak di temukan", 401)
+
         data = request.json
 
-        # check email apakah sidah di lock
-        if "email_awal" not in data:
-            return parameter_error("Email belum di pilih")
-
-        email = data["email_awal"]
-
-        query = "UPDATE mentor SET email = %s "
-        values = (email, )
+        query = "UPDATE mentor SET id_mentor = %s "
+        values = (id, )
 
         if "email_ubah" in data:
             query += ", email = %s "
@@ -664,35 +800,45 @@ def update_data_mentor():
             pass_ency = hashlib.md5(password.encode('utf-8')).hexdigest()
             values += (pass_ency, )
 
-        query += " WHERE email = %s "
-        values += (email, )
+        query += " WHERE id_mentor = %s "
+        values += (id, )
         dt.insert_data_last_row(query, values)
         hasil = {"status": "berhasil update data mentor"}
-
+        return make_response(jsonify({'status_code': 200, 'description': hasil}), 200)
     except Exception as e:
-        print("Error: " + str(e))
-
-    return jsonify(hasil)
+        return bad_request(str(e))
 
 # Delete data mentor
 
 
-@user.route("/delete_data_mentor/<email>", methods=["DELETE"])
-def delete_data_mentor(email):
+@user.route("/delete_data_mentor/<id>", methods=["DELETE"])
+@jwt_required()
+@cross_origin()
+def delete_data_mentor(id):
     hasil = {"status": "gagal hapus data mentor"}
 
     try:
+
+        id_user = str(get_jwt()["id_user"])
+        role = str(get_jwt()["role_desc"])
+        username = str(get_jwt()["username"])
+
+        if role not in role_group_admin:
+            return permission_failed()
+
         dt = Data()
-        data = request.json
+        query = "SELECT id_mentor FROM mentor WHERE id_mentor = %s "
+        values = (id, )
+        data_mentor = dt.get_data(query, values)
+        if len(data_mentor) == 0:
+            return defined_error("id mentor tidak di temukan", 401)
 
-        query = "DELETE FROM mentor WHERE email = %s"
-        values = (email, )
-        dt.insert_data_last_row(query, values)
+        query = "DELETE FROM mentor WHERE id_mentor = %s"
+        values = (id, )
+        dt.insert_data(query, values)
         hasil = {"status": "berhasil hapus data mentor"}
+        return make_response(jsonify({'status_code': 200, 'description': hasil}), 200)
     except Exception as e:
-        print("Error: " + str(e))
-
-    return jsonify(hasil)
+        return bad_request(str(e))
 
 # endregion ================================= MY PROFILE AREA ==========================================================================
-
