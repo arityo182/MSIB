@@ -17,6 +17,8 @@ import warnings
 import string
 import numpy as np
 import cv2
+from flask import send_file
+import io
 
 from .models import Data
 
@@ -99,9 +101,9 @@ def get_admin_profile():
     try:
         ROUTE_NAME = str(request.path)
 
-        id_user = str(get_jwt()["id_admin"])
+        id_user = str(get_jwt()["id_user"])
         role = str(get_jwt()["role_desc"])
-        nama = str(get_jwt()["nama"])
+        username = str(get_jwt()["username"])
 
         if role not in role_group_admin:
             return permission_failed()
@@ -114,17 +116,17 @@ def get_admin_profile():
         rowCount = dt.row_count(query, values)
         hasil = dt.get_data(query, values)
         hasil = {'data': hasil, 'status_code': 200, 'row_count': rowCount}
-        ########## INSERT LOG ##############
-        imd = ImmutableMultiDict(request.args)
-        imd = imd.to_dict()
-        param_logs = "[" + str(imd) + "]"
-        try:
-            logs = secure_filename(strftime("%Y-%m-%d %H:%M:%S"))+" - "+ROUTE_NAME + \
-                " - id_user = "+str(id_user)+" - roles = "+str(role)+"\n"
-        except Exception as e:
-            logs = secure_filename(strftime(
-                "%Y-%m-%d %H:%M:%S"))+" - "+ROUTE_NAME+" - id_user = NULL - roles = NULL\n"
-        tambahLogs(logs)
+        # ########## INSERT LOG ##############
+        # imd = ImmutableMultiDict(request.args)
+        # imd = imd.to_dict()
+        # param_logs = "[" + str(imd) + "]"
+        # try:
+        #     logs = secure_filename(strftime("%Y-%m-%d %H:%M:%S"))+" - "+ROUTE_NAME + \
+        #         " - id_user = "+str(id_user)+" - roles = "+str(role)+"\n"
+        # except Exception as e:
+        #     logs = secure_filename(strftime(
+        #         "%Y-%m-%d %H:%M:%S"))+" - "+ROUTE_NAME+" - id_user = NULL - roles = NULL\n"
+        # tambahLogs(logs)
         ####################################
         return make_response(jsonify(hasil), 200)
     except Exception as e:
@@ -143,7 +145,7 @@ def get_pengajar_profile():
         role = str(get_jwt()["role_desc"])
         email = str(get_jwt()["email"])
 
-        if role not in role_group_all:
+        if role not in role_pengajar:
             return permission_failed()
 
         dt = Data()
@@ -155,16 +157,16 @@ def get_pengajar_profile():
         hasil = dt.get_data(query, values)
         hasil = {'data': hasil, 'status_code': 200, 'row_count': rowCount}
         ########## INSERT LOG ##############
-        imd = ImmutableMultiDict(request.args)
-        imd = imd.to_dict()
-        param_logs = "[" + str(imd) + "]"
-        try:
-            logs = secure_filename(strftime("%Y-%m-%d %H:%M:%S"))+" - "+ROUTE_NAME + \
-                " - id_user = "+str(id_user)+" - roles = "+str(role)+"\n"
-        except Exception as e:
-            logs = secure_filename(strftime(
-                "%Y-%m-%d %H:%M:%S"))+" - "+ROUTE_NAME+" - id_user = NULL - roles = NULL\n"
-        tambahLogs(logs)
+        # imd = ImmutableMultiDict(request.args)
+        # imd = imd.to_dict()
+        # param_logs = "[" + str(imd) + "]"
+        # try:
+        #     logs = secure_filename(strftime("%Y-%m-%d %H:%M:%S"))+" - "+ROUTE_NAME + \
+        #         " - id_user = "+str(id_user)+" - roles = "+str(role)+"\n"
+        # except Exception as e:
+        #     logs = secure_filename(strftime(
+        #         "%Y-%m-%d %H:%M:%S"))+" - "+ROUTE_NAME+" - id_user = NULL - roles = NULL\n"
+        # tambahLogs(logs)
         ####################################
         return make_response(jsonify(hasil), 200)
     except Exception as e:
@@ -184,7 +186,7 @@ def get_mentor_profile():
         role = str(get_jwt()["role_desc"])
         email = str(get_jwt()["email"])
 
-        if role not in role_group_all:
+        if role not in role_mentor:
             return permission_failed()
 
         dt = Data()
@@ -196,16 +198,16 @@ def get_mentor_profile():
         hasil = dt.get_data(query, values)
         hasil = {'data': hasil, 'status_code': 200, 'row_count': rowCount}
         ########## INSERT LOG ##############
-        imd = ImmutableMultiDict(request.args)
-        imd = imd.to_dict()
-        param_logs = "[" + str(imd) + "]"
-        try:
-            logs = secure_filename(strftime("%Y-%m-%d %H:%M:%S"))+" - "+ROUTE_NAME + \
-                " - id_user = "+str(id_user)+" - roles = "+str(role)+"\n"
-        except Exception as e:
-            logs = secure_filename(strftime(
-                "%Y-%m-%d %H:%M:%S"))+" - "+ROUTE_NAME+" - id_user = NULL - roles = NULL\n"
-        tambahLogs(logs)
+        # imd = ImmutableMultiDict(request.args)
+        # imd = imd.to_dict()
+        # param_logs = "[" + str(imd) + "]"
+        # try:
+        #     logs = secure_filename(strftime("%Y-%m-%d %H:%M:%S"))+" - "+ROUTE_NAME + \
+        #         " - id_user = "+str(id_user)+" - roles = "+str(role)+"\n"
+        # except Exception as e:
+        #     logs = secure_filename(strftime(
+        #         "%Y-%m-%d %H:%M:%S"))+" - "+ROUTE_NAME+" - id_user = NULL - roles = NULL\n"
+        # tambahLogs(logs)
         ####################################
         return make_response(jsonify(hasil), 200)
     except Exception as e:
@@ -234,18 +236,21 @@ def get_mahasiswa_profile():
 
         rowCount = dt.row_count(query, values)
         hasil = dt.get_data(query, values)
+        # binary_data = base64.b64decode(hasil[0]["foto_user"])
+        nama_mahasiswa = hasil[0]["nama_mahasiswa"]
+        # binary_data = send_file(io.BytesIO(binary_data), attachment_filename=nama_mahasiswa + ".jpg", as_attachment=True)
         hasil = {'data': hasil, 'status_code': 200, 'row_count': rowCount}
         ########## INSERT LOG ##############
-        imd = ImmutableMultiDict(request.args)
-        imd = imd.to_dict()
-        param_logs = "[" + str(imd) + "]"
-        try:
-            logs = secure_filename(strftime("%Y-%m-%d %H:%M:%S"))+" - "+ROUTE_NAME + \
-                " - id_user = "+str(id_user)+" - roles = "+str(role)+"\n"
-        except Exception as e:
-            logs = secure_filename(strftime(
-                "%Y-%m-%d %H:%M:%S"))+" - "+ROUTE_NAME+" - id_user = NULL - roles = NULL\n"
-        tambahLogs(logs)
+        # imd = ImmutableMultiDict(request.args)
+        # imd = imd.to_dict()
+        # param_logs = "[" + str(imd) + "]"
+        # try:
+        #     logs = secure_filename(strftime("%Y-%m-%d %H:%M:%S"))+" - "+ROUTE_NAME + \
+        #         " - id_user = "+str(id_user)+" - roles = "+str(role)+"\n"
+        # except Exception as e:
+        #     logs = secure_filename(strftime(
+        #         "%Y-%m-%d %H:%M:%S"))+" - "+ROUTE_NAME+" - id_user = NULL - roles = NULL\n"
+        # tambahLogs(logs)
         ####################################
         return make_response(jsonify(hasil), 200)
     except Exception as e:
@@ -304,16 +309,105 @@ def update_my_profile():
             values += (data["posisi_ubah"], )
         else:
             return parameter_error("posisi_ubah tidak di temukan")
+        
         if "foto_user" in data:
-            filename_photo = secure_filename(strftime(
-                "%Y-%m-%d %H:%M:%S")+"_"+str(random_string_number_only(5))+"_foto_user.png")
-            save(data["foto_user"], os.path.join(
-                app.config['UPLOAD_FOLDER_FOTO_TEMPAT_UJI_KOMPETENSI'], filename_photo))
+            filename_photo = secure_filename(strftime("%Y-%m-%d %H:%M:%S")+"_"+str(random_string_number_only(5))+"_foto_user.png")
+            save(data["foto_user"], os.path.join(app.config['UPLOAD_FOLDER_FOTO_USER'], filename_photo))
 
             query += """ ,foto_user = %s """
             values += (filename_photo, )
+        
         else:
-            return parameter_error("foto_user tidak di temukan")
+            return parameter_error("error foto user")
+
+        query += """ WHERE id_mahasiswa = %s """
+        values += (id_user, )
+        dt.insert_data_last_row(query, values)
+        hasil = {"status": "berhasil update data mahasiswa"}
+        return make_response(jsonify({'status_code': 200, 'description': hasil}), 200)
+    except Exception as e:
+        return bad_request(str(e))
+
+@user.route('/update_mahasiswa_profile2', methods=['PUT', 'OPTIONS',"POST"])
+@jwt_required()
+@cross_origin()
+def update_my_profile2():
+
+    try:
+        id_user = str(get_jwt()["id_user"])
+        role = str(get_jwt()["role_desc"])
+        email = str(get_jwt()["email"])
+
+        if role not in role_mahasiswa:
+            return permission_failed()
+
+        dt = Data()
+        
+        data = json.loads(request.form.get('data'))
+
+        query_temp = " SELECT id_mahasiswa FROM mahasiswa WHERE id_mahasiswa = %s "
+        values_temp = (id_user, )
+        data_mahasiswa = dt.get_data(query_temp, values_temp)
+        if len(data_mahasiswa) == 0:
+            return defined_error("Gagal, data tidak ditemukan")
+
+        query = """UPDATE mahasiswa SET id_mahasiswa = %s """
+        values = (id_user, )
+
+        if "email_ubah" in data:
+            query += """, email = %s """
+            values += (data["email_ubah"], )
+        else:
+            return parameter_error("email_ubah tidak di temukan")
+        if "nama_ubah" in data:
+            query += """, nama_mahasiswa = %s """
+            values += (data["nama_ubah"], )
+        else:
+            return parameter_error("nama_ubah tidak di temukan")
+        if "tanggal_ubah" in data:
+            query += """, tanggal_lahir = %s """
+            values += (data["tanggal_ubah"], )
+        else:
+            return parameter_error("tanggal_ubah tidak di temukan")
+        if "asal_kampus_ubah" in data:
+            query += """, asal_kampus = %s """
+            values += (data["asal_kampus_ubah"], )
+        else:
+            return parameter_error("asal_kampus_ubah tidak di temukan")
+        if "posisi_ubah" in data:
+            query += """, posisi = %s """
+            values += (data["posisi_ubah"], )
+        else:
+            return parameter_error("posisi_ubah tidak di temukan")
+        
+        ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
+
+        def allowed_file(filename):
+            return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+       
+        if 'foto_user' not in request.files:
+            resp = jsonify({'message' : 'No file part in the request'})
+            resp.status_code = 400
+            return resp
+        file = request.files['foto_user']
+        
+        if file.filename == '':
+            resp = jsonify({'message' : 'No file selected for uploading'})
+            resp.status_code = 400
+            return resp
+
+        if file and allowed_file(file.filename):
+                filename_photo = secure_filename(strftime("%Y-%m-%d %H:%M:%S")+"_"+str(random_string_number_only(5))+"_foto_user.png")
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename_photo))
+                file = open(os.path.join(app.config['UPLOAD_FOLDER'], filename_photo),'rb').read()
+                # We must encode the file to get base64 string
+                file = base64.b64encode(file)
+
+                query += """ ,foto_user = %s """
+                values += (file, )
+
+        else:
+            return parameter_error("error")
 
         query += """ WHERE id_mahasiswa = %s """
         values += (id_user, )
@@ -351,6 +445,8 @@ def insert_mahasiswa():
             return parameter_error("asal_kampus tidak di temukan")
         if "posisi" not in data:
             return parameter_error("posisi tidak di temukan")
+        if "sks" not in data:
+            return parameter_error("sks tidak di temukan")
 
         email = data["email"]
         nama_mahasiswa = data["nama_mahasiswa"]
@@ -358,20 +454,21 @@ def insert_mahasiswa():
         asal_kampus = data["asal_kampus"]
         posisi = data["posisi"]
         status_id = "mahasiswa"
+        sks = data["sks"]
 
         # check email dan nama mahasiwa di database
         query_temp = "SELECT * FROM mahasiswa WHERE email = %s"
         values_temp = (email, )
         if len(dt.get_data(query_temp, values_temp)) != 0:
-            return defined_error("Mahasiswa sudah ada di database")
+            return defined_error("email mahasiswa sudah ada di database")
 
         # Covert password md5
         pass_ency = hashlib.md5(password.encode('utf-8')).hexdigest()
 
         # Masukan data ke database
-        query = "INSERT into mahasiswa (email, nama_mahasiswa, password, asal_kampus, posisi, status_id, id_admin) VALUES (%s, %s, %s, %s, %s, %s,%s)"
+        query = "INSERT into mahasiswa (email, nama_mahasiswa, password, asal_kampus, posisi, status_id, id_admin, sks) VALUES (%s, %s, %s, %s, %s, %s,%s, %s)"
         values = (email, nama_mahasiswa, pass_ency,
-                  asal_kampus, posisi, status_id, id_user)
+                  asal_kampus, posisi, status_id, id_user, sks)
         dt.insert_data(query, values)
         hasil = {"status": "berhasil tambah data mahasiswa"}
         return make_response(jsonify({'status_code': 200, 'description': hasil}), 200)
@@ -466,6 +563,12 @@ def update_data_mahasiswa(id):
             values += (data["posisi_ubah"], )
         else:
             return parameter_error("posisi_ubah tidak ditemukan")
+        
+        if "sks_ubah" in data:
+            query += ", sks = %s "
+            values += (data["sks_ubah"], )
+        else:
+            return parameter_error("sks_ubah tidak ditemukan")
 
         query += " WHERE id_mahasiswa = %s "
         values += (id, )

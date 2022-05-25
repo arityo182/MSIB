@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RPPI Mahasiswa</title>
+</head>
+<body>
+    <header class="clearfix">
+        <div id = "logo">
+            <img src="logo.png">
+        </div>
+        <div id="skema">
+            <h2 class="name">RPPI</h2>
+            <div class="sub_name">REBCANA PENGAMBILAN PROYEK INDUSTRI</div>
+        </div>
+        <main>
+            <div id="details" class="clearfix">
+                <div id="mahasiswa">
+                    <div class="name">Nama : {{db_nama_mahasiswa}} </div>
+                    <div class="asal_kampus">Asal Kampus : {{db_asal_kampus}} </div>
+                    <div class="posisi_sib">Posisi Magang/SIB {{db_posisi}} </div>
+                    <div class="skema">Skema Belajar : {{db_skema}} </div>
+                  </div>
+
+                </div>
+                <table border="0" cellspacing="0" cellpadding="0">
+                  <thead>
+                    <tr>
+                      <th class="posisi">POSISI PROYEK</th>
+                      <th class="nama_proyek">NAMA PROYEK</th>
+                      <th class="jp">JP</th>
+                      <th class="jadwal">JADWAL</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="isi_posisi"> {{db_jabatan}} </td>
+                      <td class="isi_nama_proyek"> {{db_nama_project}} </td>
+                      <td class="is_jp"> {{db_jam}} </td>
+                      <td class="isi_jadwal"> {{db_jadwal_mentoring}} </td>
+                    </tr>
+                  </tbody>
+                </table>
+                
+              <footer>
+                <div id = "logo">
+                    <img src="logo.png">
+                </div>
+                <font style="font-family: arial; font-size: 12px; color: #010101">
+					PROGRAM MAGANG DAN STUDI INDEPENDEN BERSERTIFIKAT 2022 PT. BISA ARTIFISIAL INDONESIA
+				</font>
+              </footer>
+            </body>
+          </html>

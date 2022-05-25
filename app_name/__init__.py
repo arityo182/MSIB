@@ -58,6 +58,7 @@ if UPLOAD_FOLDER_PATH[-1] != "/":
 
 
 app.config['UPLOAD_FOLDER_FOTO_USER'] = UPLOAD_FOLDER_PATH+"foto_user/"
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER_PATH
 app.config['UPLOAD_FOLDER_FOTO_TEMPAT_UJI_KOMPETENSI'] = UPLOAD_FOLDER_PATH + \
     "lokasi/foto_tempat_uji_kompetensi/"
 

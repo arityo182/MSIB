@@ -116,6 +116,13 @@ def insert2(query, val, conn):
     # conn.close()
     return mycursor.lastrowid
 
+
+#memsasukan bulk data
+def insert3(query, val, con):
+    mycursor = conn.cursor()
+    mycursor.executemany(query, val)
+    con.commit()
+
 # Perintah Count
 
 
