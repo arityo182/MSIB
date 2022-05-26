@@ -204,38 +204,29 @@ def insert_project():
         values = (nama_project, deskripsi, jadwal_mentoring, jam, sks)
         id_project = dt.insert_data_last_row(query, values)
 
-        #insert data ke project
-        if "posisi_project" in data:
-            if "skema_project" not in data:
-                return parameter_error("skema_project tidak ditemukan")
-            if "jumlah_dibuka" not in data:
-                return parameter_error("jumlah_dibuka tidak di temukan")
-            values2 = (id_project, posisi_project, skema_project, jumlah_dibuka)
-            query2 = "INSERT INTO posisi_project (id_project, nama_posisi, skema_posisi, jumlah_dibuka) VALUES (%s, %s, %s, %s)"
-            id_posisi = dt.insert_data_last_row(query2, values2)
-            # Insert to table anggota project (gk tau dipakai gk)
-            query3 = "INSERT INTO anggota_project (id_posisi) VALUES (%s)"
-            values3 = (id_posisi, )
-            dt.insert_data(query3,values3)
-
-            #insert data mentor dan project ke mentor_project
-            query4 = "INSERT INTO mentor_project (id_project, id_mentor) VALUES (%s, %s)"
-            values4 = (id_project, nama_mentor)
-            dt.insert_data(query4, values4)
-
-            hasil = {"status": "berhasil tambah data project"}
-            return make_response(jsonify({'status_code': 200, 'description': hasil}), 200)
-        
-        elif "posisi_project_2" in data:
-            if "skema_project_2" not in data:
-                return parameter_error("skema_project_2 tidak di temukan")
-            if "jumlah_dibuka_2" not in data:
-                return parameter_error("jumlah_dibuka_2 tidak di temukan")
-            
+        #insert ke project
+        if "posisi_project_10":
+            if "skema_project_10" not in data:
+                return parameter_error("skema_project_9 tidak di temukan")
+            if "jumlah_dibuka_10" not in data:
+                return parameter_error("jumlah_dibuka_9 tidak di temukan")
+            # insert ke tabel
+            # query2 = "INSERT INTO posisi_project (id_project, nama_posisi, skema_posisi, jumlah_dibuka) VALUES (%s, %s, %s, %s)"
+            #values2 = (id_project, posisi_project, skema_project, jumlah_dibuka)
             values2 = [(id_project, posisi_project, skema_project, jumlah_dibuka),
-                   (id_project, posisi_project_2, skema_project_2, jumlah_dibuka_2)]
+                    (id_project, posisi_project_2, skema_project_2, jumlah_dibuka_2),
+                    (id_project, posisi_project_3, skema_project_3, jumlah_dibuka_3),
+                    (id_project, posisi_project_4, skema_project_4, jumlah_dibuka_4),
+                    (id_project, posisi_project_5, skema_project_5, jumlah_dibuka_5),
+                    (id_project, posisi_project_6, skema_project_6, jumlah_dibuka_6),
+                    (id_project, posisi_project_7, skema_project_7, jumlah_dibuka_7),
+                    (id_project, posisi_project_8, skema_project_8, jumlah_dibuka_8),
+                    (id_project, posisi_project_9, skema_project_9, jumlah_dibuka_9),
+                    (id_project, posisi_project_10, skema_project_10, jumlah_dibuka_10)]
             query2 = "INSERT INTO posisi_project (id_project, nama_posisi, skema_posisi, jumlah_dibuka) VALUES " + ",".join("(%s, %s, %s, %s)" for _ in values2)
-            id_posisi = dt.insert_data_last_row(query2, values2)
+            flattened_values = [item for sublist in values2 for item in sublist ]
+            #values2= ', '.join(map(str,str,int, rows))
+            id_posisi = dt.insert_data_last_row(query2, flattened_values)
             # Insert to table anggota project (gk tau dipakai gk)
             query3 = "INSERT INTO anggota_project (id_posisi) VALUES (%s)"
             values3 = (id_posisi, )
@@ -248,87 +239,47 @@ def insert_project():
 
             hasil = {"status": "berhasil tambah data project"}
             return make_response(jsonify({'status_code': 200, 'description': hasil}), 200)
-        
-        elif "posisi_project_3" in data:
-            if "skema_project_3" not in data:
-                return parameter_error("skema_project_3 tidak di temukan")
-            if "jumlah_dibuka_3" not in data:
-                return parameter_error("jumlah_dibuka_3 tidak di temukan")
-            values2 = [(id_project, posisi_project, skema_project, jumlah_dibuka),
-                   (id_project, posisi_project_2, skema_project_2, jumlah_dibuka_2),
-                   (id_project, posisi_project_3, skema_project_3, jumlah_dibuka_3)]
-            query2 = "INSERT INTO posisi_project (id_project, nama_posisi, skema_posisi, jumlah_dibuka) VALUES " + ",".join("(%s, %s, %s, %s)" for _ in values2)
-            id_posisi = dt.insert_data_last_row(query2, values2)
-            # Insert to table anggota project (gk tau dipakai gk)
-            query3 = "INSERT INTO anggota_project (id_posisi) VALUES (%s)"
-            values3 = (id_posisi, )
-            dt.insert_data(query3,values3)
-
-            #insert data mentor dan project ke mentor_project
-            query4 = "INSERT INTO mentor_project (id_project, id_mentor) VALUES (%s, %s)"
-            values4 = (id_project, nama_mentor)
-            dt.insert_data(query4, values4)
-
-            hasil = {"status": "berhasil tambah data project"}
-            return make_response(jsonify({'status_code': 200, 'description': hasil}), 200)
-        elif "posisi_project_4" in data:
-            if "skema_project_4" not in data:
-                return parameter_error("skema_project_4 tidak di temukan")
-            if "jumlah_dibuka_4" not in data:
-                return parameter_error("jumlah_dibuka_4 tidak di temukan")
-            values2 = [(id_project, posisi_project, skema_project, jumlah_dibuka),
-                   (id_project, posisi_project_2, skema_project_2, jumlah_dibuka_2),
-                   (id_project, posisi_project_3, skema_project_3, jumlah_dibuka_3),
-                   (id_project, posisi_project_4, skema_project_4, jumlah_dibuka_4)]
-            query2 = "INSERT INTO posisi_project (id_project, nama_posisi, skema_posisi, jumlah_dibuka) VALUES " + ",".join("(%s, %s, %s, %s)" for _ in values2)
-            id_posisi = dt.insert_data_last_row(query2, values2)
-            # Insert to table anggota project (gk tau dipakai gk)
-            query3 = "INSERT INTO anggota_project (id_posisi) VALUES (%s)"
-            values3 = (id_posisi, )
-            dt.insert_data(query3,values3)
-
-            #insert data mentor dan project ke mentor_project
-            query4 = "INSERT INTO mentor_project (id_project, id_mentor) VALUES (%s, %s)"
-            values4 = (id_project, nama_mentor)
-            dt.insert_data(query4, values4)
-
-            hasil = {"status": "berhasil tambah data project"}
-            return make_response(jsonify({'status_code': 200, 'description': hasil}), 200)
-        elif "posisi_project_5" in data:
-            if "skema_project_5" not in data:
-                return parameter_error("skema_project_5 tidak di temukan")
-            if "jumlah_dibuka_5" not in data:
-                return parameter_error("jumlah_dibuka_5 tidak di temukan")
-            values2 = [(id_project, posisi_project, skema_project, jumlah_dibuka),
-                   (id_project, posisi_project_2, skema_project_2, jumlah_dibuka_2),
-                   (id_project, posisi_project_3, skema_project_3, jumlah_dibuka_3),
-                   (id_project, posisi_project_4, skema_project_4, jumlah_dibuka_4),
-                   (id_project, posisi_project_5, skema_project_5, jumlah_dibuka_5)]
-            query2 = "INSERT INTO posisi_project (id_project, nama_posisi, skema_posisi, jumlah_dibuka) VALUES " + ",".join("(%s, %s, %s, %s)" for _ in values2)
-            id_posisi = dt.insert_data_last_row(query2, values2)
-            # Insert to table anggota project (gk tau dipakai gk)
-            query3 = "INSERT INTO anggota_project (id_posisi) VALUES (%s)"
-            values3 = (id_posisi, )
-            dt.insert_data(query3,values3)
-
-            #insert data mentor dan project ke mentor_project
-            query4 = "INSERT INTO mentor_project (id_project, id_mentor) VALUES (%s, %s)"
-            values4 = (id_project, nama_mentor)
-            dt.insert_data(query4, values4)
-
-            hasil = {"status": "berhasil tambah data project"}
-            return make_response(jsonify({'status_code': 200, 'description': hasil}), 200)
-        elif "posisi_project_6" in data:
-            if "skema_project_6" not in data:
-                return parameter_error("skema_project_6 tidak di temukan")
-            if "jumlah_dibuka_6" not in data:
-                return parameter_error("jumlah_dibuka_6 tidak di temukan")
+        elif "posisi_project_9" in data:
+            if "skema_project_9" not in data:
+                return parameter_error("skema_project_9 tidak di temukan")
+            if "jumlah_dibuka_9" not in data:
+                return parameter_error("jumlah_dibuka_9 tidak di temukan")
             values2 = [(id_project, posisi_project, skema_project, jumlah_dibuka),
                    (id_project, posisi_project_2, skema_project_2, jumlah_dibuka_2),
                    (id_project, posisi_project_3, skema_project_3, jumlah_dibuka_3),
                    (id_project, posisi_project_4, skema_project_4, jumlah_dibuka_4),
                    (id_project, posisi_project_5, skema_project_5, jumlah_dibuka_5),
-                   (id_project, posisi_project_6, skema_project_6, jumlah_dibuka_6)]
+                   (id_project, posisi_project_6, skema_project_6, jumlah_dibuka_6),
+                   (id_project, posisi_project_7, skema_project_7, jumlah_dibuka_7),
+                   (id_project, posisi_project_8, skema_project_8, jumlah_dibuka_8),
+                   (id_project, posisi_project_9, skema_project_9, jumlah_dibuka_9)]
+            query2 = "INSERT INTO posisi_project (id_project, nama_posisi, skema_posisi, jumlah_dibuka) VALUES " + ",".join("(%s, %s, %s, %s)" for _ in values2)
+            id_posisi = dt.insert_data_last_row(query2, values2)
+            # Insert to table anggota project (gk tau dipakai gk)
+            query3 = "INSERT INTO anggota_project (id_posisi) VALUES (%s)"
+            values3 = (id_posisi, )
+            dt.insert_data(query3,values3)
+
+            #insert data mentor dan project ke mentor_project
+            query4 = "INSERT INTO mentor_project (id_project, id_mentor) VALUES (%s, %s)"
+            values4 = (id_project, nama_mentor)
+            dt.insert_data(query4, values4)
+
+            hasil = {"status": "berhasil tambah data project"}
+            return make_response(jsonify({'status_code': 200, 'description': hasil}), 200)
+        elif "posisi_project_8" in data:
+            if "skema_project_8" not in data:
+                return parameter_error("skema_project_8 tidak di temukan")
+            if "jumlah_dibuka_8" not in data:
+                return parameter_error("jumlah_dibuka_8 tidak di temukan")
+            values2 = [(id_project, posisi_project, skema_project, jumlah_dibuka),
+                   (id_project, posisi_project_2, skema_project_2, jumlah_dibuka_2),
+                   (id_project, posisi_project_3, skema_project_3, jumlah_dibuka_3),
+                   (id_project, posisi_project_4, skema_project_4, jumlah_dibuka_4),
+                   (id_project, posisi_project_5, skema_project_5, jumlah_dibuka_5),
+                   (id_project, posisi_project_6, skema_project_6, jumlah_dibuka_6),
+                   (id_project, posisi_project_7, skema_project_7, jumlah_dibuka_7),
+                   (id_project, posisi_project_8, skema_project_8, jumlah_dibuka_8)]
             query2 = "INSERT INTO posisi_project (id_project, nama_posisi, skema_posisi, jumlah_dibuka) VALUES " + ",".join("(%s, %s, %s, %s)" for _ in values2)
             id_posisi = dt.insert_data_last_row(query2, values2)
             # Insert to table anggota project (gk tau dipakai gk)
@@ -369,20 +320,17 @@ def insert_project():
 
             hasil = {"status": "berhasil tambah data project"}
             return make_response(jsonify({'status_code': 200, 'description': hasil}), 200)
-        
-        elif "posisi_project_8" in data:
-            if "skema_project_8" not in data:
-                return parameter_error("skema_project_8 tidak di temukan")
-            if "jumlah_dibuka_8" not in data:
-                return parameter_error("jumlah_dibuka_8 tidak di temukan")
+        elif "posisi_project_6" in data:
+            if "skema_project_6" not in data:
+                return parameter_error("skema_project_6 tidak di temukan")
+            if "jumlah_dibuka_6" not in data:
+                return parameter_error("jumlah_dibuka_6 tidak di temukan")
             values2 = [(id_project, posisi_project, skema_project, jumlah_dibuka),
                    (id_project, posisi_project_2, skema_project_2, jumlah_dibuka_2),
                    (id_project, posisi_project_3, skema_project_3, jumlah_dibuka_3),
                    (id_project, posisi_project_4, skema_project_4, jumlah_dibuka_4),
                    (id_project, posisi_project_5, skema_project_5, jumlah_dibuka_5),
-                   (id_project, posisi_project_6, skema_project_6, jumlah_dibuka_6),
-                   (id_project, posisi_project_7, skema_project_7, jumlah_dibuka_7),
-                   (id_project, posisi_project_8, skema_project_8, jumlah_dibuka_8)]
+                   (id_project, posisi_project_6, skema_project_6, jumlah_dibuka_6)]
             query2 = "INSERT INTO posisi_project (id_project, nama_posisi, skema_posisi, jumlah_dibuka) VALUES " + ",".join("(%s, %s, %s, %s)" for _ in values2)
             id_posisi = dt.insert_data_last_row(query2, values2)
             # Insert to table anggota project (gk tau dipakai gk)
@@ -397,21 +345,16 @@ def insert_project():
 
             hasil = {"status": "berhasil tambah data project"}
             return make_response(jsonify({'status_code': 200, 'description': hasil}), 200)
-        
-        elif "posisi_project_9" in data:
-            if "skema_project_9" not in data:
-                return parameter_error("skema_project_9 tidak di temukan")
-            if "jumlah_dibuka_9" not in data:
-                return parameter_error("jumlah_dibuka_9 tidak di temukan")
+        elif "posisi_project_5" in data:
+            if "skema_project_5" not in data:
+                return parameter_error("skema_project_5 tidak di temukan")
+            if "jumlah_dibuka_5" not in data:
+                return parameter_error("jumlah_dibuka_5 tidak di temukan")
             values2 = [(id_project, posisi_project, skema_project, jumlah_dibuka),
                    (id_project, posisi_project_2, skema_project_2, jumlah_dibuka_2),
                    (id_project, posisi_project_3, skema_project_3, jumlah_dibuka_3),
                    (id_project, posisi_project_4, skema_project_4, jumlah_dibuka_4),
-                   (id_project, posisi_project_5, skema_project_5, jumlah_dibuka_5),
-                   (id_project, posisi_project_6, skema_project_6, jumlah_dibuka_6),
-                   (id_project, posisi_project_7, skema_project_7, jumlah_dibuka_7),
-                   (id_project, posisi_project_8, skema_project_8, jumlah_dibuka_8),
-                   (id_project, posisi_project_9, skema_project_9, jumlah_dibuka_9)]
+                   (id_project, posisi_project_5, skema_project_5, jumlah_dibuka_5)]
             query2 = "INSERT INTO posisi_project (id_project, nama_posisi, skema_posisi, jumlah_dibuka) VALUES " + ",".join("(%s, %s, %s, %s)" for _ in values2)
             id_posisi = dt.insert_data_last_row(query2, values2)
             # Insert to table anggota project (gk tau dipakai gk)
@@ -426,28 +369,17 @@ def insert_project():
 
             hasil = {"status": "berhasil tambah data project"}
             return make_response(jsonify({'status_code': 200, 'description': hasil}), 200)
-        else :
-            if "skema_project_10" not in data:
-                return parameter_error("skema_project_9 tidak di temukan")
-            if "jumlah_dibuka_10" not in data:
-                return parameter_error("jumlah_dibuka_9 tidak di temukan")
-            # insert ke tabel
-            # query2 = "INSERT INTO posisi_project (id_project, nama_posisi, skema_posisi, jumlah_dibuka) VALUES (%s, %s, %s, %s)"
-            #values2 = (id_project, posisi_project, skema_project, jumlah_dibuka)
+        elif "posisi_project_4" in data:
+            if "skema_project_4" not in data:
+                return parameter_error("skema_project_4 tidak di temukan")
+            if "jumlah_dibuka_4" not in data:
+                return parameter_error("jumlah_dibuka_4 tidak di temukan")
             values2 = [(id_project, posisi_project, skema_project, jumlah_dibuka),
-                    (id_project, posisi_project_2, skema_project_2, jumlah_dibuka_2),
-                    (id_project, posisi_project_3, skema_project_3, jumlah_dibuka_3),
-                    (id_project, posisi_project_4, skema_project_4, jumlah_dibuka_4),
-                    (id_project, posisi_project_5, skema_project_5, jumlah_dibuka_5),
-                    (id_project, posisi_project_6, skema_project_6, jumlah_dibuka_6),
-                    (id_project, posisi_project_7, skema_project_7, jumlah_dibuka_7),
-                    (id_project, posisi_project_8, skema_project_8, jumlah_dibuka_8),
-                    (id_project, posisi_project_9, skema_project_9, jumlah_dibuka_9),
-                    (id_project, posisi_project_10, skema_project_10, jumlah_dibuka_10)]
+                   (id_project, posisi_project_2, skema_project_2, jumlah_dibuka_2),
+                   (id_project, posisi_project_3, skema_project_3, jumlah_dibuka_3),
+                   (id_project, posisi_project_4, skema_project_4, jumlah_dibuka_4)]
             query2 = "INSERT INTO posisi_project (id_project, nama_posisi, skema_posisi, jumlah_dibuka) VALUES " + ",".join("(%s, %s, %s, %s)" for _ in values2)
-            flattened_values = [item for sublist in values2 for item in sublist ]
-            #values2= ', '.join(map(str,str,int, rows))
-            id_posisi = dt.insert_data_last_row(query2, flattened_values)
+            id_posisi = dt.insert_data_last_row(query2, values2)
             # Insert to table anggota project (gk tau dipakai gk)
             query3 = "INSERT INTO anggota_project (id_posisi) VALUES (%s)"
             values3 = (id_posisi, )
@@ -460,6 +392,73 @@ def insert_project():
 
             hasil = {"status": "berhasil tambah data project"}
             return make_response(jsonify({'status_code': 200, 'description': hasil}), 200)
+        elif "posisi_project_3" in data:
+            if "skema_project_3" not in data:
+                return parameter_error("skema_project_3 tidak di temukan")
+            if "jumlah_dibuka_3" not in data:
+                return parameter_error("jumlah_dibuka_3 tidak di temukan")
+            values2 = [(id_project, posisi_project, skema_project, jumlah_dibuka),
+                   (id_project, posisi_project_2, skema_project_2, jumlah_dibuka_2),
+                   (id_project, posisi_project_3, skema_project_3, jumlah_dibuka_3)]
+            query2 = "INSERT INTO posisi_project (id_project, nama_posisi, skema_posisi, jumlah_dibuka) VALUES " + ",".join("(%s, %s, %s, %s)" for _ in values2)
+            id_posisi = dt.insert_data_last_row(query2, values2)
+            # Insert to table anggota project (gk tau dipakai gk)
+            query3 = "INSERT INTO anggota_project (id_posisi) VALUES (%s)"
+            values3 = (id_posisi, )
+            dt.insert_data(query3,values3)
+
+            #insert data mentor dan project ke mentor_project
+            query4 = "INSERT INTO mentor_project (id_project, id_mentor) VALUES (%s, %s)"
+            values4 = (id_project, nama_mentor)
+            dt.insert_data(query4, values4)
+
+            hasil = {"status": "berhasil tambah data project"}
+            return make_response(jsonify({'status_code': 200, 'description': hasil}), 200)
+        elif "posisi_project_2" in data:
+            if "skema_project_2" not in data:
+                return parameter_error("skema_project_2 tidak di temukan")
+            if "jumlah_dibuka_2" not in data:
+                return parameter_error("jumlah_dibuka_2 tidak di temukan")
+            
+            values2 = [(id_project, posisi_project, skema_project, jumlah_dibuka),
+                   (id_project, posisi_project_2, skema_project_2, jumlah_dibuka_2)]
+            query2 = "INSERT INTO posisi_project (id_project, nama_posisi, skema_posisi, jumlah_dibuka) VALUES " + ",".join("(%s, %s, %s, %s)" for _ in values2)
+            id_posisi = dt.insert_data_last_row(query2, values2)
+            # Insert to table anggota project (gk tau dipakai gk)
+            query3 = "INSERT INTO anggota_project (id_posisi) VALUES (%s)"
+            values3 = (id_posisi, )
+            dt.insert_data(query3,values3)
+
+            #insert data mentor dan project ke mentor_project
+            query4 = "INSERT INTO mentor_project (id_project, id_mentor) VALUES (%s, %s)"
+            values4 = (id_project, nama_mentor)
+            dt.insert_data(query4, values4)
+
+            hasil = {"status": "berhasil tambah data project"}
+            return make_response(jsonify({'status_code': 200, 'description': hasil}), 200)
+        elif "posisi_project" in data:
+            if "skema_project" not in data:
+                return parameter_error("skema_project tidak ditemukan")
+            if "jumlah_dibuka" not in data:
+                return parameter_error("jumlah_dibuka tidak di temukan")
+            values2 = (id_project, posisi_project, skema_project, jumlah_dibuka)
+            query2 = "INSERT INTO posisi_project (id_project, nama_posisi, skema_posisi, jumlah_dibuka) VALUES (%s, %s, %s, %s)"
+            id_posisi = dt.insert_data_last_row(query2, values2)
+            # Insert to table anggota project (gk tau dipakai gk)
+            query3 = "INSERT INTO anggota_project (id_posisi) VALUES (%s)"
+            values3 = (id_posisi, )
+            dt.insert_data(query3,values3)
+
+            #insert data mentor dan project ke mentor_project
+            query4 = "INSERT INTO mentor_project (id_project, id_mentor) VALUES (%s, %s)"
+            values4 = (id_project, nama_mentor)
+            dt.insert_data(query4, values4)
+
+            hasil = {"status": "berhasil tambah data project"}
+            return make_response(jsonify({'status_code': 200, 'description': hasil}), 200)
+        else:
+            return defined_error("Error add project",401)
+
     except Exception as e:
         return bad_request(str(e))
 
