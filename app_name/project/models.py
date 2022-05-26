@@ -1,7 +1,7 @@
 # model
 import requests
 from flask import Flask, jsonify, request, make_response
-from ..database import conn, select, select2, insert, insert2, row_count2, select_limit, select_limit_param, select_row
+from ..database import conn, insert3, select, select2, insert, insert2, row_count2, select_limit, select_limit_param, select_row
 
 # Class
 
@@ -32,6 +32,10 @@ class Data:
 
     def insert_data_last_row(self, query, val):
         return insert2(query, val, self.mydb)
+
+    #inset bulk data
+    def inset_data_bulk(self, query, val):
+        return insert3(query, val, self.mydb)
 
     # ROW COUNT
     def row_count(self, query, val):
